@@ -1,31 +1,32 @@
 import streamlit as st
 import numpy as np
 import pickle
+import os
 import tensorflow as tf
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Dropout, BatchNormalization
 
 st.set_page_config(page_title="Loan Default Prediction", page_icon="🏦", layout="wide")
 
-BACKEND = r'C:\Users\nwe saleem\Desktop\loan_default_project\Backend'
+# Path automatically detect hoga
+BASE = os.path.dirname(os.path.abspath(__file__))
+BACKEND = os.path.join(BASE, '..', 'Backend')
 
 @st.cache_resource
 def load_models():
-    # ML Models
-    best_lr  = pickle.load(open(rf'{BACKEND}\best_lr.pkl',  'rb'))
-    best_rf  = pickle.load(open(rf'{BACKEND}\best_rf.pkl',  'rb'))
-    best_gb  = pickle.load(open(rf'{BACKEND}\best_gb.pkl',  'rb'))
-    best_xgb = pickle.load(open(rf'{BACKEND}\best_xgb.pkl', 'rb'))
-    scaler     = pickle.load(open(rf'{BACKEND}\scaler.pkl',     'rb'))
-    normalizer = pickle.load(open(rf'{BACKEND}\normalizer.pkl', 'rb'))
+    best_lr  = pickle.load(open(os.path.join(BACKEND, 'best_lr.pkl'),  'rb'))
+    best_rf  = pickle.load(open(os.path.join(BACKEND, 'best_rf.pkl'),  'rb'))
+    best_gb  = pickle.load(open(os.path.join(BACKEND, 'best_gb.pkl'),  'rb'))
+    best_xgb = pickle.load(open(os.path.join(BACKEND, 'best_xgb.pkl'), 'rb'))
+    scaler     = pickle.load(open(os.path.join(BACKEND, 'scaler.pkl'),     'rb'))
+    normalizer = pickle.load(open(os.path.join(BACKEND, 'normalizer.pkl'), 'rb'))
 
-    # DL Models — architecture yahan banao, weights load karo
     ann = Sequential([
         Dense(64, activation='relu', input_shape=(16,)),
         Dense(32, activation='relu'),
         Dense(1, activation='sigmoid')
     ])
-    ann.load_weights(rf'{BACKEND}\ann_weights.weights.h5')
+    ann.load_weights(os.path.join(BACKEND, 'ann_weights.weights.h5'))
 
     dnn = Sequential([
         Dense(128, activation='relu', input_shape=(16,)),
@@ -37,7 +38,7 @@ def load_models():
         Dense(32, activation='relu'),
         Dense(1, activation='sigmoid')
     ])
-    dnn.load_weights(rf'{BACKEND}\dnn_weights.weights.h5')
+    dnn.load_weights(os.path.join(BACKEND, 'dnn_weights.weights.h5'))
 
     cnn = Sequential([
         tf.keras.layers.Conv1D(32, 2, activation='relu', input_shape=(16, 1)),
@@ -46,14 +47,14 @@ def load_models():
         Dense(64, activation='relu'),
         Dense(1, activation='sigmoid')
     ])
-    cnn.load_weights(rf'{BACKEND}\cnn_weights.weights.h5')
+    cnn.load_weights(os.path.join(BACKEND, 'cnn_weights.weights.h5'))
 
     lstm = Sequential([
         tf.keras.layers.LSTM(64, input_shape=(16, 1)),
         Dense(32, activation='relu'),
         Dense(1, activation='sigmoid')
     ])
-    lstm.load_weights(rf'{BACKEND}\lstm_weights.weights.h5')
+    lstm.load_weights(os.path.join(BACKEND, 'lstm_weights.weights.h5'))
 
     return best_lr, best_rf, best_gb, best_xgb, scaler, normalizer, ann, dnn, cnn, lstm
 
