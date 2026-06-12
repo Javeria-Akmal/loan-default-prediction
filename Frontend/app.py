@@ -2,6 +2,7 @@ import streamlit as st
 import numpy as np
 import pickle
 import os
+import onnxruntime as ort
 
 st.set_page_config(page_title="Loan Default Prediction", page_icon="🏦", layout="wide")
 
@@ -12,9 +13,10 @@ BACKEND = os.path.join(BASE, '..', 'Backend')
 def load_models():
     best_xgb = pickle.load(open(os.path.join(BACKEND, 'best_xgb.pkl'), 'rb'))
     scaler   = pickle.load(open(os.path.join(BACKEND, 'scaler.pkl'),   'rb'))
-    return best_xgb, scaler
+    sess     = ort.InferenceSession(os.path.join(BACKEND, 'cnn_model.onnx'))
+    return best_xgb, scaler, sess
 
-best_xgb, scaler = load_models()
+best_xgb, scaler, sess = load_models()
 
 st.title("🏦 Loan Default Prediction")
 st.markdown("Fill in the loan details to predict default risk.")
@@ -43,6 +45,7 @@ with col3:
     has_dependents = st.selectbox("Has Dependents",  ["Yes", "No"])
     loan_purpose   = st.selectbox("Loan Purpose",    ["Home", "Business", "Education", "Auto", "Other"])
     has_cosigner   = st.selectbox("Has Co-Signer",   ["Yes", "No"])
+    model_type     = st.selectbox("Select Model", ["XGBoost (ML)", "CNN (DL)"])
 
 st.divider()
 
@@ -63,7 +66,13 @@ if st.button("🔍 Predict", use_container_width=True):
     ]])
 
     scaled = scaler.transform(raw)
-    prob = best_xgb.predict_proba(scaled)[0][1]
+
+    if model_type == "XGBoost (ML)":
+        prob = best_xgb.predict_proba(scaled)[0][1]
+    else:
+        cnn_input = scaled.reshape(1, 16, 1).astype(np.float32)
+        prob = float(sess.run(None, {'inputs': cnn_input})[0][0][0])
+
     prediction = int(prob > 0.5)
 
     st.subheader("Prediction Result")
