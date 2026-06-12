@@ -2,6 +2,9 @@ import streamlit as st
 import numpy as np
 import pickle
 import os
+import tensorflow as tf
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Conv1D, MaxPooling1D, Flatten, Dense
 
 st.set_page_config(page_title="Loan Default Prediction", page_icon="🏦", layout="wide")
 
@@ -10,15 +13,20 @@ BACKEND = os.path.join(BASE, '..', 'Backend')
 
 @st.cache_resource
 def load_models():
-    best_lr  = pickle.load(open(os.path.join(BACKEND, 'best_lr.pkl'),  'rb'))
-    best_rf  = pickle.load(open(os.path.join(BACKEND, 'best_rf.pkl'),  'rb'))
-    best_gb  = pickle.load(open(os.path.join(BACKEND, 'best_gb.pkl'),  'rb'))
     best_xgb = pickle.load(open(os.path.join(BACKEND, 'best_xgb.pkl'), 'rb'))
-    scaler     = pickle.load(open(os.path.join(BACKEND, 'scaler.pkl'),     'rb'))
-    normalizer = pickle.load(open(os.path.join(BACKEND, 'normalizer.pkl'), 'rb'))
-    return best_lr, best_rf, best_gb, best_xgb, scaler, normalizer
+    scaler   = pickle.load(open(os.path.join(BACKEND, 'scaler.pkl'),   'rb'))
+    
+    cnn = Sequential([
+        Conv1D(32, 2, activation='relu', input_shape=(16, 1)),
+        MaxPooling1D(),
+        Flatten(),
+        Dense(64, activation='relu'),
+        Dense(1, activation='sigmoid')
+    ])
+    cnn.load_weights(os.path.join(BACKEND, 'cnn_model.keras'))
+    return best_xgb, scaler, cnn
 
-best_lr, best_rf, best_gb, best_xgb, scaler, normalizer = load_models()
+best_xgb, scaler, cnn = load_models()
 
 st.title("🏦 Loan Default Prediction")
 st.markdown("Fill in the loan details and select a model to predict default risk.")
@@ -47,10 +55,7 @@ with col3:
     has_dependents = st.selectbox("Has Dependents",  ["Yes", "No"])
     loan_purpose   = st.selectbox("Loan Purpose",    ["Home", "Business", "Education", "Auto", "Other"])
     has_cosigner   = st.selectbox("Has Co-Signer",   ["Yes", "No"])
-    model_type     = st.selectbox("Select Model", [
-        "Logistic Regression", "Random Forest",
-        "Gradient Boosting", "XGBoost"
-    ])
+    model_type     = st.selectbox("Select Model", ["XGBoost (ML)", "CNN (DL)"])
 
 st.divider()
 
@@ -72,14 +77,11 @@ if st.button("🔍 Predict", use_container_width=True):
 
     scaled = scaler.transform(raw)
 
-    if model_type == "Logistic Regression":
-        prob = best_lr.predict_proba(scaled)[0][1]
-    elif model_type == "Random Forest":
-        prob = best_rf.predict_proba(scaled)[0][1]
-    elif model_type == "Gradient Boosting":
-        prob = best_gb.predict_proba(scaled)[0][1]
-    elif model_type == "XGBoost":
+    if model_type == "XGBoost (ML)":
         prob = best_xgb.predict_proba(scaled)[0][1]
+    elif model_type == "CNN (DL)":
+        cnn_input = scaled.reshape(1, scaled.shape[1], 1)
+        prob = float(cnn.predict(cnn_input)[0][0])
 
     prediction = int(prob > 0.5)
 
