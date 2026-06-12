@@ -2,9 +2,6 @@ import streamlit as st
 import numpy as np
 import pickle
 import os
-import tensorflow as tf
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Conv1D, MaxPooling1D, Flatten, Dense
 
 st.set_page_config(page_title="Loan Default Prediction", page_icon="🏦", layout="wide")
 
@@ -15,21 +12,12 @@ BACKEND = os.path.join(BASE, '..', 'Backend')
 def load_models():
     best_xgb = pickle.load(open(os.path.join(BACKEND, 'best_xgb.pkl'), 'rb'))
     scaler   = pickle.load(open(os.path.join(BACKEND, 'scaler.pkl'),   'rb'))
-    
-    cnn = Sequential([
-        Conv1D(32, 2, activation='relu', input_shape=(16, 1)),
-        MaxPooling1D(),
-        Flatten(),
-        Dense(64, activation='relu'),
-        Dense(1, activation='sigmoid')
-    ])
-    cnn.load_weights(os.path.join(BACKEND, 'cnn_model.keras'))
-    return best_xgb, scaler, cnn
+    return best_xgb, scaler
 
-best_xgb, scaler, cnn = load_models()
+best_xgb, scaler = load_models()
 
 st.title("🏦 Loan Default Prediction")
-st.markdown("Fill in the loan details and select a model to predict default risk.")
+st.markdown("Fill in the loan details to predict default risk.")
 st.divider()
 
 col1, col2, col3 = st.columns(3)
@@ -55,7 +43,6 @@ with col3:
     has_dependents = st.selectbox("Has Dependents",  ["Yes", "No"])
     loan_purpose   = st.selectbox("Loan Purpose",    ["Home", "Business", "Education", "Auto", "Other"])
     has_cosigner   = st.selectbox("Has Co-Signer",   ["Yes", "No"])
-    model_type     = st.selectbox("Select Model", ["XGBoost (ML)", "CNN (DL)"])
 
 st.divider()
 
@@ -76,13 +63,7 @@ if st.button("🔍 Predict", use_container_width=True):
     ]])
 
     scaled = scaler.transform(raw)
-
-    if model_type == "XGBoost (ML)":
-        prob = best_xgb.predict_proba(scaled)[0][1]
-    elif model_type == "CNN (DL)":
-        cnn_input = scaled.reshape(1, scaled.shape[1], 1)
-        prob = float(cnn.predict(cnn_input)[0][0])
-
+    prob = best_xgb.predict_proba(scaled)[0][1]
     prediction = int(prob > 0.5)
 
     st.subheader("Prediction Result")
