@@ -12,7 +12,7 @@ BACKEND = os.path.join(BASE, '..', 'Backend')
 @st.cache_resource
 def load_models():
     best_xgb = pickle.load(open(os.path.join(BACKEND, 'best_xgb.pkl'), 'rb'))
-    scaler   = pickle.load(open(os.path.join(BACKEND, 'scaler.pkl'),   'rb'))
+    scaler = pickle.load(open(os.path.join(BACKEND, 'scaler_new.pkl'), 'rb'))
     sess     = ort.InferenceSession(os.path.join(BACKEND, 'cnn_model.onnx'))
     return best_xgb, scaler, sess
 
