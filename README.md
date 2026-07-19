@@ -27,16 +27,4 @@ Predict whether a borrower will <b>default on a loan</b>, based on financial and
 ├── Backend/       # Model training & prediction logic
 ├── Frontend/       # Streamlit app interface
 └── runtime.txt      # Deployment environment config
-</pre>Contentexcerpt_from_previous_claude_message.txt1 linetxtSkip to content
-Javeria-Akmal
-User navigation
-Overview
-Repositories
-11
- (11)
-Projects
-Packages
-Stars
-
-
 
