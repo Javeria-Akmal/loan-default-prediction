@@ -38,31 +38,5 @@ Projects
 Packages
 Stars
 
-Javeria Akmal
-Javeria-Akmal
-Data Science Student @ KFUEIT | Aspiring ML/AI Engineer | Python • SQL • XGBoost
- 0 followers · 1 following
-Rahim Yar Khan, Pakistan
-jiyyaa13@gmail.com
-hpastedSkip to content
-Javeria-Akmal
-loan-default-prediction
-Repository navigation
-Code
-Issues
-Pull requests
-Actions
-Projects
-Wiki
-Security and quality
-Insights
-Settings
-Owner avatar
-loan-default-prediction
-Public
-Javeria-Akmal/loan-default-prediction
-Go to file
-t
-T
-Name		
-Javeria-Akmapasted
+
+
