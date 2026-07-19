@@ -1,7 +1,7 @@
 <h1>Loan Default Prediction</h1>
 <b>End-to-end ML/DL pipeline</b> for predicting loan default risk, deployed as a live <b>Streamlit app</b>.
 
-🔗 <b>Live App:</b> https://loan-default-prediction-gqhurms2yxako7rav8ah2x.streamlit.app
+🔗 <b>Live App:</b> https://loan-default-prediction-uxs4yappjzsd2jcabdz9zuy.streamlit.app
 
 <h2>Problem Statement</h2>
 Predict whether a borrower will <b>default on a loan</b>, based on financial and demographic features — helping lenders assess risk before approval.
